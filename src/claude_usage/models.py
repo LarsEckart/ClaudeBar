@@ -6,7 +6,7 @@ from dataclasses import dataclass
 @dataclass
 class UsageSnapshot:
     """Represents a snapshot of Claude CLI usage data."""
-    
+
     session_percent: int | None = None
     weekly_percent: int | None = None
     opus_percent: int | None = None

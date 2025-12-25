@@ -1,16 +1,15 @@
 """Format UsageSnapshot for various outputs."""
 
-import json
 from .models import UsageSnapshot
 
 
 def get_css_class(percent: int | None) -> str:
     """
     Get CSS class based on usage percentage.
-    
+
     Args:
         percent: Usage percentage (higher = more remaining)
-        
+
     Returns:
         CSS class name: "good", "warning", "critical", or "unknown"
     """
@@ -26,7 +25,7 @@ def get_css_class(percent: int | None) -> str:
 def format_waybar(snapshot: UsageSnapshot) -> dict:
     """
     Format snapshot for Waybar custom module.
-    
+
     Returns:
         Dict with keys: text, tooltip, percentage, class
     """
@@ -37,10 +36,14 @@ def format_waybar(snapshot: UsageSnapshot) -> dict:
             "percentage": 0,
             "class": "error",
         }
-    
+
     # Use session percent as primary display, fall back to weekly
-    primary_percent = snapshot.session_percent if snapshot.session_percent is not None else snapshot.weekly_percent
-    
+    primary_percent = (
+        snapshot.session_percent
+        if snapshot.session_percent is not None
+        else snapshot.weekly_percent
+    )
+
     if primary_percent is None:
         return {
             "text": "?",
@@ -48,20 +51,24 @@ def format_waybar(snapshot: UsageSnapshot) -> dict:
             "percentage": 0,
             "class": "unknown",
         }
-    
-    # Build tooltip showing account tier, weekly and session
+
+    # Build tooltip showing account tier, session and weekly
     tooltip_parts = []
     if snapshot.account_tier:
         tooltip_parts.append(f"Claude {snapshot.account_tier}")
-    if snapshot.weekly_percent is not None:
-        reset_info = f" (resets {snapshot.weekly_reset})" if snapshot.weekly_reset else ""
-        tooltip_parts.append(f"Weekly: {snapshot.weekly_percent}%{reset_info}")
     if snapshot.session_percent is not None:
-        reset_info = f" (resets {snapshot.session_reset})" if snapshot.session_reset else ""
+        reset_info = (
+            f" (resets {snapshot.session_reset})" if snapshot.session_reset else ""
+        )
         tooltip_parts.append(f"Session: {snapshot.session_percent}%{reset_info}")
-    
+    if snapshot.weekly_percent is not None:
+        reset_info = (
+            f" (resets {snapshot.weekly_reset})" if snapshot.weekly_reset else ""
+        )
+        tooltip_parts.append(f"Weekly: {snapshot.weekly_percent}%{reset_info}")
+
     tooltip = "\n".join(tooltip_parts) if tooltip_parts else "Claude Usage"
-    
+
     return {
         "text": f"{primary_percent}%",
         "tooltip": tooltip,
@@ -74,7 +81,7 @@ def format_plain(snapshot: UsageSnapshot) -> str:
     """Format snapshot as plain text."""
     if snapshot.error:
         return f"Error: {snapshot.error}"
-    
+
     lines = []
     if snapshot.account_tier:
         lines.append(f"Tier: Claude {snapshot.account_tier}")
@@ -86,7 +93,7 @@ def format_plain(snapshot: UsageSnapshot) -> str:
         lines.append(f"Session: {snapshot.session_percent}%")
     if snapshot.opus_percent is not None:
         lines.append(f"Opus: {snapshot.opus_percent}%")
-    
+
     return "\n".join(lines) if lines else "No usage data available"
 
 

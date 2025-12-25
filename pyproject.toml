@@ -1,11 +1,16 @@
 [project]
 name = "claudebar"
-version = "0.2.0"
+version = "0.2.1"
 description = "Monitor Claude CLI usage for Waybar"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "pexpect>=4.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
 ]
 
 [project.scripts]
@@ -17,3 +22,9 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/claude_usage"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests as integration tests (require Claude CLI, may be slow)",
+]

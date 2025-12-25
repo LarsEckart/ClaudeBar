@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+from importlib.metadata import version
 
 from .probe import fetch_usage_raw
 from .parser import parse_usage
@@ -22,6 +23,12 @@ Examples:
   claude-usage --dump-raw         # Debug: show raw CLI output
   claude-usage --dump-parsed      # Debug: show parsed data
         """,
+    )
+    parser.add_argument(
+        "--version",
+        "-V",
+        action="version",
+        version=f"%(prog)s {version('claudebar')}",
     )
     parser.add_argument(
         "--format",
@@ -45,24 +52,24 @@ Examples:
         action="store_true",
         help="Output parsed data before formatting (for debugging)",
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Fetch raw usage data
         raw_text = fetch_usage_raw(timeout=args.timeout)
-        
+
         if args.dump_raw:
             print(raw_text)
             return 0
-        
+
         # Parse the raw text
         snapshot = parse_usage(raw_text)
-        
+
         if args.dump_parsed:
             print(json.dumps(format_json(snapshot), indent=2))
             return 0
-        
+
         # Format output
         if args.format == "waybar":
             output = format_waybar(snapshot)
@@ -72,9 +79,9 @@ Examples:
             print(json.dumps(output, indent=2))
         elif args.format == "plain":
             print(format_plain(snapshot))
-        
+
         return 0
-        
+
     except FileNotFoundError as e:
         # Claude not installed
         error_snapshot = UsageSnapshot(error=str(e))
@@ -83,7 +90,7 @@ Examples:
         else:
             print(f"Error: {e}", file=sys.stderr)
         return 1
-        
+
     except RuntimeError as e:
         # Interaction failed
         error_snapshot = UsageSnapshot(error=str(e))
@@ -92,7 +99,7 @@ Examples:
         else:
             print(f"Error: {e}", file=sys.stderr)
         return 1
-        
+
     except Exception as e:
         # Unexpected error
         error_snapshot = UsageSnapshot(error=f"Unexpected error: {e}")

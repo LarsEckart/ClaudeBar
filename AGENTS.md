@@ -12,6 +12,12 @@ claudebar/
 │   ├── models.py       # Data models (UsageSnapshot)
 │   ├── parser.py       # Parse Claude Code output
 │   └── probe.py        # Interact with Claude Code via pexpect
+├── tests/
+│   ├── conftest.py         # Fixtures with sample CLI output
+│   ├── test_formatters.py  # Unit tests for formatters
+│   ├── test_integration.py # Integration tests (require Claude CLI)
+│   ├── test_models.py      # Unit tests for models
+│   └── test_parser.py      # Unit tests for parser
 ├── pyproject.toml      # Project configuration
 └── plan.md             # Original design plan
 ```
@@ -26,8 +32,8 @@ claudebar/
 ```bash
 cd /home/lars/github/claudebar
 
-# Create venv and install dependencies
-uv sync
+# Create venv and install dependencies (including dev dependencies)
+uv sync --extra dev
 
 # Run during development (without installing)
 uv run claude-usage
@@ -55,7 +61,26 @@ killall waybar && waybar &
 ## Running Tests
 
 ```bash
+# Run unit tests only (fast)
+uv run pytest --ignore=tests/test_integration.py
+
+# Run all tests including integration (slow, requires Claude CLI)
 uv run pytest
+
+# Run with verbose output
+uv run pytest -v
+```
+
+## Linting & Formatting
+
+```bash
+# Check formatting and linting
+uvx ruff check src/ tests/
+uvx ruff format --check src/ tests/
+
+# Auto-fix
+uvx ruff check --fix src/ tests/
+uvx ruff format src/ tests/
 ```
 
 ## How It Works
