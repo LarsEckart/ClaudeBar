@@ -1,6 +1,8 @@
-# Claude Usage Monitor for Waybar
+# ClaudeBar
 
-A Python tool that scrapes Claude CLI usage data and outputs Waybar-compatible JSON.
+A Python tool that monitors Claude CLI usage and displays it in Waybar.
+
+This project is a port of [CodexBar](https://github.com/pdyba/CodexBar) by [Peter Dyba](https://github.com/pdyba), adapted specifically for Claude CLI usage monitoring with Waybar. Thanks Peter for the original idea and implementation!
 
 ## Installation
 
