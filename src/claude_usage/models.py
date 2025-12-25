@@ -13,5 +13,6 @@ class UsageSnapshot:
     session_reset: str | None = None
     weekly_reset: str | None = None
     account_email: str | None = None
+    account_tier: str | None = None  # e.g., "Pro", "Max"
     raw_text: str = ""
     error: str | None = None

@@ -10,6 +10,9 @@ ANSI_PATTERN = re.compile(r'\x1b\[[0-9;]*[a-zA-Z]|\x1b\].*?\x07|\x1b\[\?[0-9]+[h
 # Pattern to match email addresses
 EMAIL_PATTERN = re.compile(r'(?:Account|Email|Logged in as)[:\s]+(\S+@\S+)', re.IGNORECASE)
 
+# Pattern to match account tier from "Login method: Claude Pro Account" or "Claude Max Account"
+TIER_PATTERN = re.compile(r'Login method:\s*Claude\s+(\w+)\s+Account', re.IGNORECASE)
+
 
 def strip_ansi(text: str) -> str:
     """Remove ANSI escape sequences from text."""
@@ -79,6 +82,14 @@ def extract_email(text: str) -> str | None:
     return None
 
 
+def extract_account_tier(text: str) -> str | None:
+    """Extract account tier (Pro, Max, etc.) from status text."""
+    match = TIER_PATTERN.search(text)
+    if match:
+        return match.group(1)
+    return None
+
+
 def parse_usage(raw_text: str) -> UsageSnapshot:
     """
     Parse raw CLI output into a UsageSnapshot.
@@ -118,5 +129,6 @@ def parse_usage(raw_text: str) -> UsageSnapshot:
         session_reset=session_reset,
         weekly_reset=weekly_reset,
         account_email=extract_email(clean_text),
+        account_tier=extract_account_tier(clean_text),
         raw_text=raw_text,
     )

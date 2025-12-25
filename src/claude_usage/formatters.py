@@ -49,8 +49,10 @@ def format_waybar(snapshot: UsageSnapshot) -> dict:
             "class": "unknown",
         }
     
-    # Build tooltip showing both weekly and session
+    # Build tooltip showing account tier, weekly and session
     tooltip_parts = []
+    if snapshot.account_tier:
+        tooltip_parts.append(f"Claude {snapshot.account_tier}")
     if snapshot.weekly_percent is not None:
         reset_info = f" (resets {snapshot.weekly_reset})" if snapshot.weekly_reset else ""
         tooltip_parts.append(f"Weekly: {snapshot.weekly_percent}%{reset_info}")
@@ -74,6 +76,8 @@ def format_plain(snapshot: UsageSnapshot) -> str:
         return f"Error: {snapshot.error}"
     
     lines = []
+    if snapshot.account_tier:
+        lines.append(f"Tier: Claude {snapshot.account_tier}")
     if snapshot.account_email:
         lines.append(f"Account: {snapshot.account_email}")
     if snapshot.weekly_percent is not None:
@@ -95,5 +99,6 @@ def format_json(snapshot: UsageSnapshot) -> dict:
         "session_reset": snapshot.session_reset,
         "weekly_reset": snapshot.weekly_reset,
         "account_email": snapshot.account_email,
+        "account_tier": snapshot.account_tier,
         "error": snapshot.error,
     }

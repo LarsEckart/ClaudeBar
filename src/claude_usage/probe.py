@@ -91,8 +91,29 @@ def fetch_usage_raw(timeout: int = 15) -> str:
         except:
             pass
         
-        # Capture all output
-        output = child.before or ""
+        # Capture Usage tab output
+        usage_output = child.before or ""
+        
+        # Press Tab to switch to Status tab for account tier info
+        child.send("\t")
+        time.sleep(0.5)
+        
+        # Wait for Status tab content
+        try:
+            child.expect([r"Login method", r"Version", pexpect.TIMEOUT], timeout=3)
+        except:
+            pass
+        
+        # Read Status tab output
+        try:
+            child.expect(pexpect.TIMEOUT, timeout=0.5)
+        except:
+            pass
+        
+        status_output = child.before or ""
+        
+        # Combine both outputs
+        output = usage_output + "\n" + status_output
         
         # Clean exit - send Escape first to close any menu, then /exit
         child.send("\x1b")  # Escape
