@@ -1,6 +1,6 @@
 # ClaudeBar Development Guide
 
-ClaudeBar monitors Claude CLI usage and displays it in Waybar.
+ClaudeBar monitors Claude Pro/Max subscription usage and displays it in Waybar.
 
 ## Project Structure
 
@@ -10,8 +10,8 @@ claudebar/
 │   ├── cli.py          # Command-line interface
 │   ├── formatters.py   # Output formatting (waybar, json, plain)
 │   ├── models.py       # Data models (UsageSnapshot)
-│   ├── parser.py       # Parse Claude CLI output
-│   └── probe.py        # Interact with Claude CLI via pexpect
+│   ├── parser.py       # Parse Claude Code output
+│   └── probe.py        # Interact with Claude Code via pexpect
 ├── pyproject.toml      # Project configuration
 └── plan.md             # Original design plan
 ```
@@ -60,8 +60,8 @@ uv run pytest
 
 ## How It Works
 
-1. **probe.py**: Spawns `claude` CLI with pexpect, sends `/usage` command, captures output
-2. **parser.py**: Strips ANSI codes, extracts percentages and reset times via regex
+1. **probe.py**: Spawns Claude Code with pexpect, sends `/usage` command, captures Usage and Status tabs
+2. **parser.py**: Strips ANSI codes, extracts percentages, reset times, and account tier via regex
 3. **formatters.py**: Formats data for Waybar JSON output (or plain text/JSON)
 4. **cli.py**: Entry point, handles arguments and orchestrates the pipeline
 
@@ -92,5 +92,5 @@ Waybar JSON output:
 ```
 
 - **text**: Session usage remaining (primary display)
-- **tooltip**: Both weekly and session with reset times
+- **tooltip**: Account tier (Pro/Max), weekly and session usage with reset times
 - **class**: `good` (>50%), `warning` (20-50%), `critical` (<20%)

@@ -1,8 +1,10 @@
 # ClaudeBar
 
-A Python tool that monitors Claude CLI usage and displays it in Waybar.
+A Python tool that monitors your Claude Pro/Max subscription usage and displays it in Waybar.
 
-This project is a port of [CodexBar](https://github.com/steipete/CodexBar) by [Peter Steinberger](https://github.com/steipete), adapted specifically for Claude CLI usage monitoring with Waybar. Thanks Peter for the original idea and implementation!
+Claude Pro and Max subscribers get usage limits that reset periodically (session limits reset every few hours, weekly limits reset weekly). This tool scrapes your current usage from [Claude Code](https://github.com/anthropics/claude-code) and displays it in Waybar so you always know how much capacity you have left.
+
+This project is a port of [CodexBar](https://github.com/steipete/CodexBar) by [Peter Steinberger](https://github.com/steipete), adapted for Waybar. Thanks Peter for the original idea and implementation!
 
 ## Installation
 
@@ -60,12 +62,13 @@ Add styling (`~/.config/waybar/style.css`):
 ## Output Format
 
 Waybar output includes:
-- `text`: Usage percentage (e.g., "85%")
-- `tooltip`: Detailed usage info
+- `text`: Usage percentage remaining (e.g., "85%")
+- `tooltip`: Account tier, session and weekly usage with reset times
 - `percentage`: Numeric percentage (0-100)
 - `class`: CSS class ("good", "warning", "critical", "error", "unknown")
 
 ## Requirements
 
 - Python 3.12+
-- Claude CLI installed and logged in (`claude login`)
+- Claude Code installed and authenticated (`claude login`)
+- A Claude Pro or Max subscription
