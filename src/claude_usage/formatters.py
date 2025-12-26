@@ -1,6 +1,33 @@
 """Format UsageSnapshot for various outputs."""
 
+import re
+
 from .models import UsageSnapshot
+
+
+def _strip_timezone(reset_time: str) -> str:
+    """Strip timezone info like '(Europe/Tallinn)' from reset time."""
+    return re.sub(r"\s*\([^)]+\)\s*$", "", reset_time).strip()
+
+
+def _convert_to_24h(time_str: str) -> str:
+    """Convert 12h time format to 24h format (e.g., '4pm' -> '16:00')."""
+    # Match patterns like "4pm", "11:30am", "4:59pm"
+    pattern = r"\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b"
+
+    def replace_time(match: re.Match) -> str:
+        hour = int(match.group(1))
+        minutes = match.group(2) or "00"
+        period = match.group(3).lower()
+
+        if period == "pm" and hour != 12:
+            hour += 12
+        elif period == "am" and hour == 12:
+            hour = 0
+
+        return f"{hour:02d}:{minutes}"
+
+    return re.sub(pattern, replace_time, time_str, flags=re.IGNORECASE)
 
 
 def get_css_class(percent: int | None) -> str:
@@ -20,6 +47,22 @@ def get_css_class(percent: int | None) -> str:
     if percent >= 20:
         return "warning"
     return "critical"
+
+
+# Colors for Pango markup in tooltip
+_COLORS = {
+    "good": "#a6e3a1",      # green
+    "warning": "#f9e2af",   # yellow
+    "critical": "#f38ba8",  # red
+    "unknown": "#6c7086",   # gray
+}
+
+
+def _colored_percent(percent: int) -> str:
+    """Return percentage with Pango color markup based on level."""
+    css_class = get_css_class(percent)
+    color = _COLORS.get(css_class, _COLORS["unknown"])
+    return f'<span foreground="{color}">{percent:3d}%</span>'
 
 
 def format_waybar(snapshot: UsageSnapshot) -> dict:
@@ -58,14 +101,18 @@ def format_waybar(snapshot: UsageSnapshot) -> dict:
         tooltip_parts.append(f"Claude {snapshot.account_tier}")
     if snapshot.session_percent is not None:
         reset_info = (
-            f" (resets {snapshot.session_reset})" if snapshot.session_reset else ""
+            f" (resets {_convert_to_24h(_strip_timezone(snapshot.session_reset))})"
+            if snapshot.session_reset
+            else ""
         )
-        tooltip_parts.append(f"Session: {snapshot.session_percent}%{reset_info}")
+        tooltip_parts.append(f"Session: {_colored_percent(snapshot.session_percent)}{reset_info}")
     if snapshot.weekly_percent is not None:
         reset_info = (
-            f" (resets {snapshot.weekly_reset})" if snapshot.weekly_reset else ""
+            f" (resets {_convert_to_24h(_strip_timezone(snapshot.weekly_reset))})"
+            if snapshot.weekly_reset
+            else ""
         )
-        tooltip_parts.append(f"Weekly: {snapshot.weekly_percent}%{reset_info}")
+        tooltip_parts.append(f"Weekly:  {_colored_percent(snapshot.weekly_percent)}{reset_info}")
 
     tooltip = "\n".join(tooltip_parts) if tooltip_parts else "Claude Usage"
 

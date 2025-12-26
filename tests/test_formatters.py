@@ -47,8 +47,8 @@ class TestFormatWaybar:
         assert result["text"] == "45%"
         assert result["percentage"] == 45
         assert result["class"] == "warning"
-        assert "Session: 45%" in result["tooltip"]
-        assert "Weekly: 85%" in result["tooltip"]
+        assert "Session:" in result["tooltip"] and "45%" in result["tooltip"]
+        assert "Weekly:" in result["tooltip"] and "85%" in result["tooltip"]
         assert "Claude Pro" in result["tooltip"]
 
     def test_error_snapshot(self):
@@ -91,7 +91,7 @@ class TestFormatWaybar:
         )
         result = format_waybar(snapshot)
 
-        assert "(resets 4pm (Europe/Tallinn))" in result["tooltip"]
+        assert "(resets 16:00)" in result["tooltip"]  # timezone stripped, 24h format
         assert "(resets Jan 1)" in result["tooltip"]
 
     def test_good_class_for_high_percentage(self):

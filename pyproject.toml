@@ -1,6 +1,6 @@
 [project]
 name = "claudebar"
-version = "0.2.1"
+version = "0.2.5"
 description = "Monitor Claude CLI usage for Waybar"
 readme = "README.md"
 requires-python = ">=3.12"
